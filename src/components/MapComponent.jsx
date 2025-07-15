@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -35,6 +35,31 @@ function MapAutoCenter({ selectedLocation }) {
   return null;
 }
 
+function MapDetectUserLocation({ onLocationSelect }) {
+  const map = useMap();
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          map.setView([latitude, longitude], 6, { animate: true });
+          onLocationSelect(latitude, longitude);
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, [map, onLocationSelect]);
+  return null;
+}
+
+function MapClickAnywhere({ onLocationSelect }) {
+  useMapEvent('click', (e) => {
+    onLocationSelect(e.latlng.lat, e.latlng.lng);
+  });
+  return null;
+}
+
 function MapComponent({ onLocationSelect, selectedLocation, loading }) {
   // Default center: somewhere in Eurasia
   const defaultCenter = [30, 20];
@@ -47,6 +72,8 @@ function MapComponent({ onLocationSelect, selectedLocation, loading }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <MapClickAnywhere onLocationSelect={onLocationSelect} />
+        <MapDetectUserLocation onLocationSelect={onLocationSelect} />
         {selectedLocation && <MapAutoCenter selectedLocation={selectedLocation} />}
         {cities.map(city => (
           <Marker
