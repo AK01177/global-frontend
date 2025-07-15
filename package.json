@@ -16,7 +16,7 @@
     "react-leaflet": "^4.2.1",
     "axios": "^1.6.0",
     "react-globe.gl": "^2.13.0",
-    "three": "^0.155.0"
+    "three": "^0.152.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",
