@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MapComponent from './components/MapComponent';
-import NewsModal from './components/NewsModal';
+import NewsPanel from './components/NewsPanel';
 import { newsAPI, apiUtils } from './api';
 
 function App() {
@@ -9,10 +9,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [apiHealth, setApiHealth] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  // Check API health on component mount
   useEffect(() => {
     checkApiHealth();
   }, []);
@@ -33,9 +31,9 @@ function App() {
     try {
       const data = await newsAPI.getNews(lat, lng);
       setNewsData(data);
-      setIsModalOpen(true);
     } catch (error) {
       setError(error.message);
+      setNewsData(null);
     } finally {
       setLoading(false);
     }
@@ -51,10 +49,8 @@ function App() {
     setSelectedLocation(null);
     setNewsData(null);
     setError(null);
-    setIsModalOpen(false);
   };
 
-  // Search bar handler (for future globe search integration)
   const handleSearch = (e) => {
     setSearch(e.target.value);
     // TODO: Integrate with globe search/zoom
@@ -74,7 +70,7 @@ function App() {
         borderBottomRightRadius: 18
       }}>
         <div style={{
-          maxWidth: 1200,
+          maxWidth: 1400,
           margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
@@ -113,26 +109,31 @@ function App() {
         </div>
       </header>
 
-      {/* Main Content Layout */}
+      {/* Two-column layout: Globe left, News right */}
       <main style={{
-        maxWidth: 1400,
+        maxWidth: 1600,
         margin: '0 auto',
         padding: '2em 0 0 0',
         minHeight: 'calc(100vh - 120px)',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        position: 'relative'
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 32
       }}>
+        {/* Globe Section */}
         <div style={{
-          width: '100%',
+          flex: 3,
+          minWidth: 0,
           minHeight: 600,
           borderRadius: 24,
           overflow: 'hidden',
           boxShadow: '0 4px 32px rgba(49,130,206,0.10)',
           background: '#fff',
-          marginBottom: 32,
-          position: 'relative'
+          position: 'relative',
+          height: '70vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}>
           <MapComponent
             onLocationSelect={handleLocationSelect}
@@ -140,17 +141,35 @@ function App() {
             loading={loading}
           />
         </div>
+        {/* News Panel Section */}
+        <div style={{
+          flex: 2,
+          minWidth: 380,
+          maxWidth: 520,
+          minHeight: 600,
+          borderRadius: 24,
+          boxShadow: '0 4px 32px rgba(49,130,206,0.10)',
+          background: 'rgba(255,255,255,0.98)',
+          padding: '2em 1.5em',
+          marginTop: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          justifyContent: 'flex-start',
+          position: 'relative',
+          height: '70vh',
+          overflowY: 'auto'
+        }}>
+          <NewsPanel
+            newsData={newsData}
+            loading={loading}
+            error={error}
+            onRetry={handleRetry}
+            onClose={resetSelection}
+            selectedLocation={selectedLocation}
+          />
+        </div>
       </main>
-
-      {/* News Modal */}
-      <NewsModal
-        isOpen={isModalOpen}
-        onClose={resetSelection}
-        newsData={newsData}
-        loading={loading}
-        error={error}
-        onRetry={handleRetry}
-      />
     </div>
   );
 }
