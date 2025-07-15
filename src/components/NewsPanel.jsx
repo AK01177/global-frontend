@@ -53,7 +53,7 @@ function NewsPanel({ newsData, loading, error, onRetry, onClose, selectedLocatio
       {/* No News State */}
       {!loading && !error && (!newsData || !newsData.summary) && (
         <div style={{ color: '#4a5568', fontSize: '1.1em', marginTop: 32, textAlign: 'center' }}>
-          {selectedLocation ? 'No news found for this location.' : 'Select a city on the globe to see news.'}
+          {selectedLocation ? 'No news found for this location.' : 'Select a city on the map to see news.'}
         </div>
       )}
       {/* News Card */}
