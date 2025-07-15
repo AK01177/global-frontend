@@ -1,7 +1,7 @@
 {
-  "name": "globescope-ai-frontend",
+  "name": "mapscope-ai-frontend",
   "version": "1.0.0",
-  "description": "Frontend for GlobeScope AI - Interactive world map with AI-powered news summaries",
+  "description": "Frontend for MapScope AI - Interactive world map with AI-powered news summaries",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,8 +15,7 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
     "axios": "^1.6.0",
-    "react-globe.gl": "^2.13.0",
-    "three": "^0.152.2"
+    "three": "0.152.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",
