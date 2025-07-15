@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MapComponent from './components/MapComponent';
 import NewsPanel from './components/NewsPanel';
 import { newsAPI, apiUtils } from './api';
@@ -10,9 +10,33 @@ function App() {
   const [error, setError] = useState(null);
   const [apiHealth, setApiHealth] = useState(null);
   const [search, setSearch] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef();
 
   useEffect(() => {
     checkApiHealth();
+  }, []);
+
+  useEffect(() => {
+    if (search.length > 2) {
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(search)}&addressdetails=1&limit=5`)
+        .then(res => res.json())
+        .then(data => setSuggestions(data))
+        .catch(() => setSuggestions([]));
+    } else {
+      setSuggestions([]);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const checkApiHealth = async () => {
@@ -53,7 +77,15 @@ function App() {
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
-    // TODO: Integrate with map search/zoom
+    setShowSuggestions(true);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setShowSuggestions(false);
+    setSearch(suggestion.display_name);
+    if (suggestion.lat && suggestion.lon) {
+      handleLocationSelect(parseFloat(suggestion.lat), parseFloat(suggestion.lon));
+    }
   };
 
   return (
@@ -93,12 +125,13 @@ function App() {
               Explore world news on an interactive map
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18, position: 'relative' }} ref={searchRef}>
             <input
               type="text"
               placeholder="Search city or country..."
               value={search}
               onChange={handleSearch}
+              onFocus={() => setShowSuggestions(true)}
               style={{
                 padding: '0.55em 1.1em',
                 borderRadius: '999px',
@@ -111,6 +144,38 @@ function App() {
                 transition: 'all 0.3s ease',
               }}
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '110%',
+                left: 0,
+                width: '100%',
+                background: '#fff',
+                border: '1px solid #e2e8f0',
+                borderRadius: 10,
+                boxShadow: '0 2px 12px rgba(49,130,206,0.07)',
+                zIndex: 1000,
+                maxHeight: 220,
+                overflowY: 'auto',
+              }}>
+                {suggestions.map((s, i) => (
+                  <div
+                    key={i}
+                    onClick={() => handleSuggestionClick(s)}
+                    style={{
+                      padding: '0.7em 1.1em',
+                      cursor: 'pointer',
+                      borderBottom: i !== suggestions.length - 1 ? '1px solid #f1f5f9' : 'none',
+                      color: '#222',
+                      background: '#fff',
+                      fontSize: '1em',
+                    }}
+                  >
+                    {s.display_name}
+                  </div>
+                ))}
+              </div>
+            )}
             <span className={
               'badge' + (apiHealth?.status === 'healthy' ? '' : ' red')
             } style={{
