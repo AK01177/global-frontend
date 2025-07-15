@@ -63,11 +63,11 @@ function App() {
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        background: 'rgba(255,255,255,0.95)',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-        padding: '1.2em 0 1em 0',
-        borderBottomLeftRadius: 18,
-        borderBottomRightRadius: 18
+        backdropFilter: 'blur(10px)',
+        background: 'rgba(255,255,255,0.75)',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.05)',
+        padding: '1em 0',
+        borderBottom: '1px solid rgba(0,0,0,0.05)',
       }}>
         <div style={{
           maxWidth: 1400,
@@ -75,11 +75,21 @@ function App() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 2em'
+          padding: '0 2em',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: '2.1rem', fontWeight: 800, color: '#3182ce', letterSpacing: '-1px' }}>🌐 GlobeScope AI</span>
-            <span style={{ fontSize: '1.1rem', color: '#4a5568', marginLeft: 16, fontWeight: 500 }}>
+            <span style={{
+              fontSize: '2rem',
+              fontWeight: 800,
+              color: '#3182ce',
+              letterSpacing: '-0.5px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
+            }}>
+              🌐 GlobeScope AI
+            </span>
+            <span style={{ fontSize: '1rem', color: '#4a5568' }}>
               Explore world news on a 3D globe
             </span>
           </div>
@@ -90,19 +100,24 @@ function App() {
               value={search}
               onChange={handleSearch}
               style={{
-                padding: '0.6em 1.2em',
-                borderRadius: 24,
-                border: '1.5px solid #cbd5e1',
-                fontSize: '1.05em',
+                padding: '0.55em 1.1em',
+                borderRadius: '999px',
+                border: '1px solid #d1d5db',
+                fontSize: '1em',
+                backgroundColor: '#ffffff',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
                 outline: 'none',
-                background: '#f7fafc',
                 minWidth: 220,
-                boxShadow: '0 1px 4px rgba(49,130,206,0.04)'
+                transition: 'all 0.3s ease',
               }}
             />
             <span className={
               'badge' + (apiHealth?.status === 'healthy' ? '' : ' red')
-            } style={{ fontSize: '1em', fontWeight: 600 }}>
+            } style={{
+              fontSize: '0.95em',
+              fontWeight: 600,
+              transition: 'color 0.3s ease'
+            }}>
               {apiHealth?.status === 'healthy' ? '🟢 Online' : '🔴 Offline'}
             </span>
           </div>
@@ -113,14 +128,11 @@ function App() {
       <main style={{
         maxWidth: 1600,
         margin: '0 auto',
-        padding: '2em 0 0 0',
-        minHeight: 'calc(100vh - 120px)',
+        padding: '2em 1em',
         display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 32
+        gap: '2em',
+        height: 'calc(100vh - 100px)',
       }}>
-        {/* Globe Section */}
         <div style={{
           flex: 3,
           minWidth: 0,
@@ -133,8 +145,7 @@ function App() {
           height: '70vh',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          paddingLeft: '40px'
+          justifyContent: 'center'
         }}>
           <MapComponent
             onLocationSelect={handleLocationSelect}
@@ -142,24 +153,15 @@ function App() {
             loading={loading}
           />
         </div>
-        {/* News Panel Section */}
+
         <div style={{
           flex: 2,
-          minWidth: 380,
-          maxWidth: 520,
-          minHeight: 600,
-          borderRadius: 24,
-          boxShadow: '0 4px 32px rgba(49,130,206,0.10)',
-          background: 'rgba(255,255,255,0.98)',
-          padding: '2em 1.5em',
-          marginTop: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'stretch',
-          justifyContent: 'flex-start',
-          position: 'relative',
-          height: '70vh',
-          overflowY: 'auto'
+          background: 'rgba(255,255,255,0.95)',
+          borderRadius: '1.5rem',
+          boxShadow: '0 12px 48px rgba(0,0,0,0.08)',
+          padding: '2rem 1.5rem',
+          overflowY: 'auto',
+          height: '100%',
         }}>
           <NewsPanel
             newsData={newsData}
