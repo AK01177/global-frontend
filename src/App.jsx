@@ -1,142 +1,146 @@
-import React, { useState, useEffect } from 'react'
-import MapComponent from './components/MapComponent'
-import NewsModal from './components/NewsModal'
-import { newsAPI, apiUtils } from './api'
+import React, { useState, useEffect } from 'react';
+import MapComponent from './components/MapComponent';
+import NewsModal from './components/NewsModal';
+import { newsAPI, apiUtils } from './api';
 
 function App() {
-  const [selectedLocation, setSelectedLocation] = useState(null)
-  const [newsData, setNewsData] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [apiHealth, setApiHealth] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [newsData, setNewsData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [apiHealth, setApiHealth] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   // Check API health on component mount
   useEffect(() => {
-    checkApiHealth()
-  }, [])
+    checkApiHealth();
+  }, []);
 
   const checkApiHealth = async () => {
     try {
-      const health = await newsAPI.healthCheck()
-      setApiHealth(health)
+      const health = await newsAPI.healthCheck();
+      setApiHealth(health);
     } catch (error) {
-      setApiHealth({ status: 'unhealthy', message: 'Backend unavailable' })
+      setApiHealth({ status: 'unhealthy', message: 'Backend unavailable' });
     }
-  }
+  };
 
   const handleLocationSelect = async (lat, lng) => {
-    if (!apiUtils.isValidCoordinates(lat, lng)) {
-      setError('Please select a valid location on the map.')
-      return
-    }
-    setSelectedLocation({ lat, lng })
-    setLoading(true)
-    setError(null)
+    setSelectedLocation({ lat, lng });
+    setLoading(true);
+    setError(null);
     try {
-      const data = await newsAPI.getNews(lat, lng)
-      setNewsData(data)
-      setIsModalOpen(true)
+      const data = await newsAPI.getNews(lat, lng);
+      setNewsData(data);
+      setIsModalOpen(true);
     } catch (error) {
-      setError(error.message)
+      setError(error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleRetry = () => {
     if (selectedLocation) {
-      handleLocationSelect(selectedLocation.lat, selectedLocation.lng)
+      handleLocationSelect(selectedLocation.lat, selectedLocation.lng);
     }
-  }
+  };
 
   const resetSelection = () => {
-    setSelectedLocation(null)
-    setNewsData(null)
-    setError(null)
-    setIsModalOpen(false)
-  }
+    setSelectedLocation(null);
+    setNewsData(null);
+    setError(null);
+    setIsModalOpen(false);
+  };
+
+  // Search bar handler (for future globe search integration)
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+    // TODO: Integrate with globe search/zoom
+  };
 
   return (
-    <div className="app-container">
-      {/* Header */}
-      <div className="header">
-        <div className="flex-col" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
-          <div className="flex-row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="flex-col">
-              <span style={{ fontSize: '2rem', fontWeight: 700, color: '#3182ce' }}>🌍 GlobeScope AI</span>
-              <span style={{ fontSize: '1rem', color: '#4a5568', marginTop: '0.2em' }}>
-                Drop a pin anywhere to get AI-powered news summaries
-              </span>
-            </div>
-            <div className="flex-row">
-              <span className={
-                'badge' + (apiHealth?.status === 'healthy' ? '' : ' red')
-              }>
-                {apiHealth?.status === 'healthy' ? '🟢 Online' : '🔴 Offline'}
-              </span>
-              {loading && (
-                <span style={{ marginLeft: '1em' }}>
-                  <span className="spinner" />
-                  <span style={{ fontSize: '1em', color: '#4a5568', marginLeft: '0.5em' }}>
-                    Loading news...
-                  </span>
-                </span>
-              )}
-            </div>
+    <div style={{ fontFamily: 'Inter, Roboto, Arial, sans-serif', minHeight: '100vh', background: 'linear-gradient(135deg, #e0e7ff 0%, #f7fafc 100%)' }}>
+      {/* Modern Sticky Header */}
+      <header style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        background: 'rgba(255,255,255,0.95)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        padding: '1.2em 0 1em 0',
+        borderBottomLeftRadius: 18,
+        borderBottomRightRadius: 18
+      }}>
+        <div style={{
+          maxWidth: 1200,
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 2em'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: '2.1rem', fontWeight: 800, color: '#3182ce', letterSpacing: '-1px' }}>🌐 GlobeScope AI</span>
+            <span style={{ fontSize: '1.1rem', color: '#4a5568', marginLeft: 16, fontWeight: 500 }}>
+              Explore world news on a 3D globe
+            </span>
           </div>
-          {/* Instructions */}
-          <div className="alert" style={{ marginTop: '1em' }}>
-            <span style={{ fontWeight: 700, marginRight: '0.5em' }}>ℹ️</span>
-            <span>
-              <span style={{ fontWeight: 600 }}>How to use: </span>
-              Click anywhere on the map to drop a pin and get real-time news for that location
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            <input
+              type="text"
+              placeholder="Search city or country..."
+              value={search}
+              onChange={handleSearch}
+              style={{
+                padding: '0.6em 1.2em',
+                borderRadius: 24,
+                border: '1.5px solid #cbd5e1',
+                fontSize: '1.05em',
+                outline: 'none',
+                background: '#f7fafc',
+                minWidth: 220,
+                boxShadow: '0 1px 4px rgba(49,130,206,0.04)'
+              }}
+            />
+            <span className={
+              'badge' + (apiHealth?.status === 'healthy' ? '' : ' red')
+            } style={{ fontSize: '1em', fontWeight: 600 }}>
+              {apiHealth?.status === 'healthy' ? '🟢 Online' : '🔴 Offline'}
             </span>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Map Container */}
-      <div style={{ position: 'relative', height: 'calc(100vh - 120px)' }}>
-        <MapComponent
-          onLocationSelect={handleLocationSelect}
-          selectedLocation={selectedLocation}
-          loading={loading}
-        />
-        {/* Floating Action Panel */}
-        {selectedLocation && (
-          <div className="floating-panel">
-            <div className="flex-col">
-              <span className="selected-location" style={{ fontWeight: 600 }}>Selected Location</span>
-              <span className="selected-location">
-                {apiUtils.formatCoordinates(selectedLocation.lat, selectedLocation.lng)}
-              </span>
-              <div style={{ margin: '0.5em 0' }}>
-                <button
-                  className="button"
-                  onClick={() => handleLocationSelect(selectedLocation.lat, selectedLocation.lng)}
-                  disabled={loading}
-                >
-                  {loading ? <span className="spinner" style={{ verticalAlign: 'middle' }} /> : 'Get News'}
-                </button>
-                <button
-                  className="button outline"
-                  onClick={resetSelection}
-                  disabled={loading}
-                >
-                  Clear
-                </button>
-              </div>
-              {error && (
-                <div className="alert error">
-                  <span style={{ fontWeight: 700, marginRight: '0.5em' }}>❌</span>
-                  <span>{error}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Main Content Layout */}
+      <main style={{
+        maxWidth: 1400,
+        margin: '0 auto',
+        padding: '2em 0 0 0',
+        minHeight: 'calc(100vh - 120px)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative'
+      }}>
+        <div style={{
+          width: '100%',
+          minHeight: 600,
+          borderRadius: 24,
+          overflow: 'hidden',
+          boxShadow: '0 4px 32px rgba(49,130,206,0.10)',
+          background: '#fff',
+          marginBottom: 32,
+          position: 'relative'
+        }}>
+          <MapComponent
+            onLocationSelect={handleLocationSelect}
+            selectedLocation={selectedLocation}
+            loading={loading}
+          />
+        </div>
+      </main>
 
       {/* News Modal */}
       <NewsModal
@@ -148,7 +152,7 @@ function App() {
         onRetry={handleRetry}
       />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
