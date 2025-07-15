@@ -134,6 +134,7 @@ function App() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          paddingLeft: '0px'
         }}>
           <MapComponent
             onLocationSelect={handleLocationSelect}
