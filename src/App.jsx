@@ -53,7 +53,7 @@ function App() {
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
-    // TODO: Integrate with globe search/zoom
+    // TODO: Integrate with map search/zoom
   };
 
   return (
@@ -87,10 +87,10 @@ function App() {
               alignItems: 'center',
               gap: 8
             }}>
-              🌐 GlobeScope AI
+              🗺️ MapScope AI
             </span>
             <span style={{ fontSize: '1rem', color: '#4a5568' }}>
-              Explore world news on a 3D globe
+              Explore world news on an interactive map
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
@@ -124,7 +124,7 @@ function App() {
         </div>
       </header>
 
-      {/* Two-column layout: Globe left, News right */}
+      {/* Two-column layout: Map left, News right */}
       <main style={{
         maxWidth: 1600,
         margin: '0 auto',
