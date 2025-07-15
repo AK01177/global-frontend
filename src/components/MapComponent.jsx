@@ -1,5 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
-import Globe from 'react-globe.gl';
+import React, { useEffect, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 // Example city data (can be expanded or loaded from a file/API)
 const cities = [
@@ -15,39 +17,51 @@ const cities = [
   { name: 'Paris', lat: 48.8566, lng: 2.3522, country: 'France' }
 ];
 
-function MapComponent({ onLocationSelect, selectedLocation, loading }) {
-  const globeEl = useRef();
-  const [hoverD, setHoverD] = useState();
+// Fix default icon issue in leaflet
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+L.Marker.prototype.options.icon = L.icon({
+  iconUrl,
+  shadowUrl: iconShadow,
+});
 
-  // Auto-focus on selected location
+function MapAutoCenter({ selectedLocation }) {
+  const map = useMap();
   useEffect(() => {
-    if (selectedLocation && globeEl.current) {
-      globeEl.current.pointOfView({ lat: selectedLocation.lat, lng: selectedLocation.lng, altitude: 1.5 }, 1000);
+    if (selectedLocation) {
+      map.setView([selectedLocation.lat, selectedLocation.lng], 4, { animate: true });
     }
-  }, [selectedLocation]);
+  }, [selectedLocation, map]);
+  return null;
+}
+
+function MapComponent({ onLocationSelect, selectedLocation, loading }) {
+  // Default center: somewhere in Eurasia
+  const defaultCenter = [30, 20];
+  const defaultZoom = 2;
 
   return (
     <div style={{ height: '100%', width: '100%', position: 'relative' }}>
-      <Globe
-        ref={globeEl}
-        width={window.innerWidth}
-        height={window.innerHeight - 120}
-        globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-        bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
-        backgroundColor="#101020"
-        pointsData={cities}
-        pointLat={d => d.lat}
-        pointLng={d => d.lng}
-        pointAltitude={d => 0.02}
-        pointRadius={d => (hoverD && hoverD.name === d.name ? 0.25 : 0.18)}
-        pointColor={d => (hoverD && hoverD.name === d.name ? 'orange' : '#3182ce')}
-        pointsTransitionDuration={400}
-        onPointClick={d => onLocationSelect(d.lat, d.lng)}
-        onPointHover={setHoverD}
-        pointLabel={d => `<b>${d.name}</b><br/>${d.country}`}
-        atmosphereColor="#3182ce"
-        atmosphereAltitude={0.18}
-      />
+      <MapContainer center={defaultCenter} zoom={defaultZoom} style={{ height: '100%', width: '100%' }} scrollWheelZoom={true}>
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {selectedLocation && <MapAutoCenter selectedLocation={selectedLocation} />}
+        {cities.map(city => (
+          <Marker
+            key={city.name}
+            position={[city.lat, city.lng]}
+            eventHandlers={{
+              click: () => onLocationSelect(city.lat, city.lng)
+            }}
+          >
+            <Popup>
+              <b>{city.name}</b><br/>{city.country}
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
       {/* Optionally, show selected city info */}
       {selectedLocation && (
         <div style={{
