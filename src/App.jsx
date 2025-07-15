@@ -133,7 +133,8 @@ function App() {
           height: '70vh',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          paddingLeft: '40px' //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         }}>
           <MapComponent
             onLocationSelect={handleLocationSelect}
